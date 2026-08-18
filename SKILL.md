@@ -21,7 +21,7 @@ conf/                    # Hydra 配置组（dataset / model / train / eval ...�
 outputs/                 # Hydra 自动管理的运行产物，按 <date>/<time> 自动分目录
 ```
 
-首次在一个项目里使用本 skill、且 `.research/` 不存在时，用 `templates/` 下的模板创建 `state.md` 和 `compute_nodes.md`，其余文件用空文件起步。
+首次在一个项目里使用本 skill、且 `.research/` 不存在时，**不要**直接用空模板起步——先跑 `/research-init`：全量扫描仓库（git log、README、目录结构、已有实验代码/结果）+ 问用户几个代码看不出来的问题（项目在研究什么、现在到哪一步、有没有已知的坑），再落盘。空模板只在用户明确说"不用扫描，直接给我空的"时才用。
 
 ## 核心规则一：state.md 只能整篇重写，不能 Edit 追加
 
@@ -72,8 +72,9 @@ outputs/                 # Hydra 自动管理的运行产物，按 <date>/<time>
 
 ## 什么时候读什么
 
+- **项目第一次用这个 skill、`.research/` 还不存在**（也对应 `/research-init` 命令）：全量扫描仓库 + 问用户几个问题，建立初始记忆，见上一节。
 - **恢复上下文 / "这个项目到哪了"**（也对应 `/research-resume` 命令）：读 `state.md`（全文，因为它本来就短）+ `compute_nodes.md`（全文）+ `decisions.log.md` 和 `experiments.log.md` 的最后 20 条。用人话跟用户复述一遍现状，不要照搬术语表之外的编号。
 - **记录一次进展 / 结束一轮工作**（也对应 `/research-checkpoint` 命令）：重写 `state.md`（遵守核心规则一），必要时往 `decisions.log.md` / `experiments.log.md` 追加一行。
 - **开始新实验**：先过核心规则四的算力确认，再按核心规则三的 Hydra 骨架写代码，跑完按核心规则三记 ledger。
 
-`/research-resume` 和 `/research-checkpoint` 是两个显式的斜杠命令（`commands/research-resume.md`、`commands/research-checkpoint.md`），分别对应上面第一条和第二条。不用命令、靠自然语言触发本 skill 也可以，但命令更可靠，想明确触发时优先用命令。
+`/research-init`、`/research-resume`、`/research-checkpoint` 是三个显式的斜杠命令（`commands/` 下同名文件），分别对应上面前三条。不用命令、靠自然语言触发本 skill 也可以，但命令更可靠，想明确触发时优先用命令。

@@ -7,9 +7,8 @@
  *   npx github:<user>/<repo> /path/to/proj
  *   npx github:<user>/<repo> --help
  *
- * 把 SKILL.md / templates / hooks 复制进 <target>/.claude/skills/research-memory/，
- * 并把 PostToolUse hook 合并进 <target>/.claude/settings.json（不覆盖已有的其它 hook）。
- * 可重复运行：skill 文件整份覆盖更新，hook 条目不会重复插入。
+ * 把 SKILL.md / templates / commands 复制进 <target>/.claude/skills/research-memory/
+ * 和 <target>/.claude/commands/。可重复运行来更新到最新版本。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -27,8 +26,8 @@ function printHelp() {
   目标目录   要安装进去的项目根目录，默认是当前目录 (.)
 
 会做的事:
-  1. 把 SKILL.md / templates/ / hooks/ 复制到 <目标目录>/.claude/skills/research-memory/
-  2. 把状态文件大小检查 hook 合并进 <目标目录>/.claude/settings.json（已有内容不会被覆盖）
+  1. 把 SKILL.md / templates/ 复制到 <目标目录>/.claude/skills/research-memory/
+  2. 把 commands/ 下的斜杠命令复制到 <目标目录>/.claude/commands/
 
 可以重复运行来更新到最新版本。`);
 }
@@ -43,40 +42,6 @@ function copyDir(src, dest) {
   }
 }
 
-function mergeSettings(targetDir, skillDirRelative) {
-  const settingsPath = path.join(targetDir, ".claude", "settings.json");
-  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-
-  let settings = {};
-  if (fs.existsSync(settingsPath)) {
-    try {
-      settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-    } catch {
-      console.warn(
-        `⚠️  ${settingsPath} 不是合法 JSON，跳过 hook 合并，请手动添加（见 README）。`
-      );
-      return;
-    }
-  }
-
-  settings.hooks ??= {};
-  settings.hooks.PostToolUse ??= [];
-
-  const command = `node "\${CLAUDE_PROJECT_DIR}/${skillDirRelative}/hooks/check-state-size.mjs"`;
-  const alreadyRegistered = settings.hooks.PostToolUse.some((entry) =>
-    (entry.hooks || []).some((h) => h.command === command)
-  );
-
-  if (!alreadyRegistered) {
-    settings.hooks.PostToolUse.push({
-      matcher: "Write",
-      hooks: [{ type: "command", command, timeout: 10 }],
-    });
-  }
-
-  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf8");
-}
-
 function main() {
   const args = process.argv.slice(2);
   if (args.includes("--help") || args.includes("-h")) {
@@ -86,11 +51,10 @@ function main() {
 
   const targetDir = path.resolve(args[0] || ".");
   const skillDest = path.join(targetDir, ".claude", "skills", "research-memory");
-  const skillDestRelative = path.relative(targetDir, skillDest);
 
   console.log(`安装 research-memory skill 到: ${skillDest}`);
 
-  for (const item of ["SKILL.md", "templates", "hooks"]) {
+  for (const item of ["SKILL.md", "templates"]) {
     const src = path.join(SELF_DIR, item);
     const dest = path.join(skillDest, item);
     if (fs.statSync(src).isDirectory()) {
@@ -101,14 +65,11 @@ function main() {
     }
   }
 
-  mergeSettings(targetDir, skillDestRelative);
-
   const commandsDest = path.join(targetDir, ".claude", "commands");
   copyDir(path.join(SELF_DIR, "commands"), commandsDest);
 
   console.log(`✅ 完成。
   - skill 文件: ${skillDest}
-  - hook 已合并进: ${path.join(targetDir, ".claude", "settings.json")}
   - 斜杠命令: ${commandsDest}/{research-init,research-resume,research-checkpoint}.md
 
 第一次在这个项目里用，且还没有 .research/ 目录：/research-init（扫描仓库 + 问几个问题，建立初始记忆）

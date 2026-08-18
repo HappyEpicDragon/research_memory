@@ -9,7 +9,6 @@
   "files": [
     "SKILL.md",
     "templates",
-    "hooks",
     "commands",
     "bin"
   ],

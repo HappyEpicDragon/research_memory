@@ -22,7 +22,7 @@
 npx github:HappyEpicDragon/research_memory
 ```
 
-会把 skill 安装到当前目录的 `.claude/skills/research-memory/`,并把一个 hook 合并进 `.claude/settings.json`。可以重复运行来更新到最新版本,已有的 `.claude/settings.json` 内容不会被覆盖。
+会把 skill 装到当前目录的 `.claude/skills/research-memory/`,把三个斜杠命令装到 `.claude/commands/`。可以重复运行来更新到最新版本。不注册任何 hook,也不碰 `.claude/settings.json`。
 
 也可以指定目标目录:
 
@@ -45,7 +45,15 @@ npx github:HappyEpicDragon/research_memory /path/to/project
 
 ### 方式三:手动复制
 
-克隆本仓库,把 `SKILL.md`、`templates/`、`hooks/` 复制到目标项目的 `.claude/skills/research-memory/`,再把 `hooks/check-state-size.mjs` 注册进 `.claude/settings.json` 的 `PostToolUse`(参考本仓库根目录下自己的 hook 注册方式,或看 `bin/install.mjs` 里 `mergeSettings` 的写法)。
+克隆本仓库,把 `SKILL.md`、`templates/` 复制到目标项目的 `.claude/skills/research-memory/`,把 `commands/` 复制到 `.claude/commands/`。
+
+### 方式四:`npx skills add`
+
+这个 skill 的 `SKILL.md` 就放在仓库根目录,符合 [skills CLI](https://www.skills.sh)(`vercel-labs/skills`)的发现规则,所以也可以用生态里更通用的方式只装 skill 本体(不含 `/research-init` 等三个斜杠命令,这个 CLI 不处理 `.claude/commands/`):
+
+```bash
+npx skills add HappyEpicDragon/research_memory
+```
 
 ## 安装之后会发生什么
 
@@ -70,7 +78,7 @@ Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"�
 
 ## 核心规则(完整版见 `SKILL.md`)
 
-1. **`state.md` 只能整篇重写,不能追加。** 有硬性 200 行上限,旧的、被取代的内容直接删除,不允许用"本节优先"这种堆叠式写法。有个真正会执行的 hook(`hooks/check-state-size.mjs`)在超限时追加警告,不是只停留在文档里说说而已。
+1. **`state.md` 只能整篇重写,不能追加。** 有硬性 200 行上限,旧的、被取代的内容直接删除,不允许用"本节优先"这种堆叠式写法。这条纯靠 `/research-checkpoint`/`/research-resume` 指令里"写完/读完自己 `wc -l` 检查一下"来落实,没有 hook 兜底——早期版本加过一个 `PostToolUse` hook 做这个检查,后来去掉了:换来的是可以用生态标准的 `npx skills add` 安装(见下),代价是压缩纪律完全靠指令执行,不靠代码强制。
 2. **`state.md` 面向完全不了解背景的人写。** 文件顶部固定一个术语表,任何编号/代号第一次出现必须先解释。检验标准:一个不知道项目背景的人,只读这一个文件就该看懂现状。
 3. **执行留在主线 agent,只有决策关卡才升级到更强的模型。** 写代码、跑实验、调试都由当前 agent 直接做;只有"方案是否合理""结果是否达标""要不要转向"这几个判断点才调用 `advisor()` 或转给 Codex 求第二意见。
 4. **新实验用 Hydra 骨架**,超参数进 `conf/` 配置组,不进文件名;每次运行自动落到 `outputs/<date>/<time>/`;`experiments.log.md` 只记一行索引,不复制内容。
@@ -91,8 +99,6 @@ research-memory/
   templates/
     state.md.tmpl              # state.md 的初始骨架
     compute_nodes.md.tmpl      # compute_nodes.md 的初始骨架
-  hooks/
-    check-state-size.mjs       # PostToolUse hook:state.md 超 200 行时追加警告
   commands/
     research-init.md            # /research-init
     research-resume.md          # /research-resume

@@ -103,11 +103,18 @@ function main() {
 
   mergeSettings(targetDir, skillDestRelative);
 
+  const commandsDest = path.join(targetDir, ".claude", "commands");
+  copyDir(path.join(SELF_DIR, "commands"), commandsDest);
+
   console.log(`✅ 完成。
   - skill 文件: ${skillDest}
   - hook 已合并进: ${path.join(targetDir, ".claude", "settings.json")}
+  - 斜杠命令: ${path.join(commandsDest, "resume.md")} / ${path.join(commandsDest, "checkpoint.md")}
 
-下次在这个项目里恢复上下文 / 开始实验时，Claude Code 会自动识别到 research-memory 这个 skill。
+新会话恢复上下文：/resume
+把这次会话进展写回记忆：/checkpoint
+（不用命令也行，Claude Code 会在你说"恢复上下文"“记录进展”这类话时自动触发 research-memory 这个 skill）
+
 首次真正使用时会在 .research/ 下按模板创建 state.md 和 compute_nodes.md。`);
 }
 

@@ -10,6 +10,7 @@
     "SKILL.md",
     "templates",
     "hooks",
+    "commands",
     "bin"
   ],
   "engines": {

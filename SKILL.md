@@ -72,6 +72,8 @@ outputs/                 # Hydra 自动管理的运行产物，按 <date>/<time>
 
 ## 什么时候读什么
 
-- **恢复上下文 / "这个项目到哪了"**：读 `state.md`（全文，因为它本来就短）+ `compute_nodes.md`（全文）+ `decisions.log.md` 和 `experiments.log.md` 的最后 20 条。用人话跟用户复述一遍现状，不要照搬术语表之外的编号。
-- **记录一次进展 / 结束一轮工作**：重写 `state.md`（遵守核心规则一），必要时往 `decisions.log.md` / `experiments.log.md` 追加一行。
+- **恢复上下文 / "这个项目到哪了"**（也对应 `/resume` 命令）：读 `state.md`（全文，因为它本来就短）+ `compute_nodes.md`（全文）+ `decisions.log.md` 和 `experiments.log.md` 的最后 20 条。用人话跟用户复述一遍现状，不要照搬术语表之外的编号。
+- **记录一次进展 / 结束一轮工作**（也对应 `/checkpoint` 命令）：重写 `state.md`（遵守核心规则一），必要时往 `decisions.log.md` / `experiments.log.md` 追加一行。
 - **开始新实验**：先过核心规则四的算力确认，再按核心规则三的 Hydra 骨架写代码，跑完按核心规则三记 ledger。
+
+`/resume` 和 `/checkpoint` 是两个显式的斜杠命令（`commands/resume.md`、`commands/checkpoint.md`），分别对应上面第一条和第二条。不用命令、靠自然语言触发本 skill 也可以，但命令更可靠，想明确触发时优先用命令。

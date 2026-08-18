@@ -60,6 +60,13 @@ Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"�
   archive/                # state.md 压缩时,被换下来的旧快照存这里
 ```
 
+## 两个斜杠命令
+
+自然语言触发 skill 不够可靠时,可以用这两个显式命令(装好后在 `.claude/commands/` 下):
+
+- **`/resume`** —— 新会话开始时用,对应 Oh My Paper 的 `/omp:plan`。读 `state.md` + `compute_nodes.md` + 日志尾部,用人话讲一遍现在到哪了。
+- **`/checkpoint`** —— 这次会话有实质性进展、准备结束或切换任务时用。把进展整篇重写进 `state.md`(不是追加),必要时往决策/实验日志加一行。
+
 ## 核心规则(完整版见 `SKILL.md`)
 
 1. **`state.md` 只能整篇重写,不能追加。** 有硬性 200 行上限,旧的、被取代的内容直接删除,不允许用"本节优先"这种堆叠式写法。有个真正会执行的 hook(`hooks/check-state-size.mjs`)在超限时追加警告,不是只停留在文档里说说而已。
@@ -85,6 +92,9 @@ research-memory/
     compute_nodes.md.tmpl      # compute_nodes.md 的初始骨架
   hooks/
     check-state-size.mjs       # PostToolUse hook:state.md 超 200 行时追加警告
+  commands/
+    resume.md                   # /resume
+    checkpoint.md                # /checkpoint
   bin/
     install.mjs                 # npx 安装脚本
   package.json

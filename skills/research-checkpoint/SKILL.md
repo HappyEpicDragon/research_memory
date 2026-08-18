@@ -1,5 +1,7 @@
 ---
-description: 把当前会话的进展写回记忆——整篇重写 state.md，必要时追加决策/实验日志
+name: research-checkpoint
+description: 把当前会话的进展写回记忆——整篇重写 state.md，必要时追加决策/实验日志。只能手动用 /research-checkpoint 触发。
+disable-model-invocation: true
 ---
 
 按 `.claude/skills/research-memory/SKILL.md` 的"核心规则一"，把这次会话的进展落盘：

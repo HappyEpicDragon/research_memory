@@ -1,5 +1,7 @@
 ---
-description: 全量扫描当前仓库，建立初始的 .research/ 记忆（state.md / compute_nodes.md / 日志文件）
+name: research-init
+description: 全量扫描当前仓库，建立初始的 .research/ 记忆（state.md / compute_nodes.md / 日志文件）。只能手动用 /research-init 触发。
+disable-model-invocation: true
 ---
 
 给一个还没有 `.research/` 目录的项目建立初始记忆。**只在 `.research/state.md` 不存在时才这样从零开始**；如果已经存在，先用 `AskUserQuestion` 确认用户是不是真的要重新初始化（会覆盖），不要默默覆盖已经在用的记忆。
@@ -29,8 +31,8 @@ description: 全量扫描当前仓库，建立初始的 .research/ 记忆（stat
 
 ## 第三步：落盘
 
-1. 用 `templates/state.md.tmpl` 的结构写 `.research/state.md`：术语表（如果第一步扫描发现项目里已经有一些专有名词/缩写，先收进来解释）、现在是什么状态、为什么是这个状态、接下来打算做什么、已知的坑。遵守 `SKILL.md` 核心规则一——200 行上限，面向不了解背景的人。
-2. 用 `templates/compute_nodes.md.tmpl` 创建空的 `.research/compute_nodes.md`。
+1. 用 `.claude/skills/research-memory/templates/state.md.tmpl` 的结构写 `.research/state.md`：术语表（如果第一步扫描发现项目里已经有一些专有名词/缩写，先收进来解释）、现在是什么状态、为什么是这个状态、接下来打算做什么、已知的坑。遵守 `.claude/skills/research-memory/SKILL.md` 核心规则一——200 行上限，面向不了解背景的人。
+2. 用 `.claude/skills/research-memory/templates/compute_nodes.md.tmpl` 创建空的 `.research/compute_nodes.md`。
 3. 创建空的 `.research/decisions.log.md` 和 `.research/experiments.log.md`（各自带上标准的"追加型日志"说明头，不需要写任何历史条目）。
 4. 创建空的 `.research/archive/` 目录。
 5. 完成后用几句话告诉用户 `state.md` 里写了什么，让用户检查扫描 + 问答得出的结论是不是准的——**这是模型第一次替这个项目总结现状，出错的概率比后续增量更新时更高，值得用户花一分钟看一眼**。

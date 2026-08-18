@@ -75,4 +75,4 @@ outputs/                 # Hydra 自动管理的运行产物，按 <date>/<time>
 - **记录一次进展 / 结束一轮工作**（也对应 `/research-checkpoint` 命令）：重写 `state.md`（遵守核心规则一），必要时往 `decisions.log.md` / `experiments.log.md` 追加一行。
 - **开始新实验**：先过核心规则四的算力确认，再按核心规则三的 Hydra 骨架写代码，跑完按核心规则三记 ledger。
 
-`/research-init`、`/research-resume`、`/research-checkpoint` 是三个显式的斜杠命令（`commands/` 下同名文件），分别对应上面前三条。不用命令、靠自然语言触发本 skill 也可以，但命令更可靠，想明确触发时优先用命令。
+`/research-init`、`/research-resume`、`/research-checkpoint` 是三个独立的 skill（各自 `disable-model-invocation: true`，只能手动触发，见各自 `SKILL.md`），分别对应上面前三条，装在同一个仓库的 `skills/` 目录下，和本 skill 配套安装。不用命令、靠自然语言触发本 skill 也可以，但命令更可靠，想明确触发时优先用命令。

@@ -1,5 +1,7 @@
 ---
-description: 恢复科研项目上下文——读 state.md + compute_nodes.md + 日志尾部，人话讲一遍现状
+name: research-resume
+description: 恢复科研项目上下文——读 state.md + compute_nodes.md + 日志尾部，人话讲一遍现状。只能手动用 /research-resume 触发。
+disable-model-invocation: true
 ---
 
 按 `.claude/skills/research-memory/SKILL.md` 的"什么时候读什么"一节里"恢复上下文"那条执行：

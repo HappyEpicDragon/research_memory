@@ -1,6 +1,6 @@
 # research-memory
 
-一个给 [Claude Code](https://claude.com/claude-code) 用的科研项目 skill：只做记忆恢复和实验执行两件事,不做文献调研、不做论文写作、不做 review。
+一个给 [Claude Code](https://claude.com/claude-code) 用的科研项目 skill 包：只做记忆恢复和实验执行两件事,不做文献调研、不做论文写作、不做 review。
 
 ## 这是什么 / 为什么会有这个
 
@@ -16,48 +16,46 @@
 
 ## 安装
 
-### 方式一:在项目里直接跑(推荐)
+用 [skills CLI](https://www.skills.sh)(`vercel-labs/skills`),一条命令装齐这个仓库里的全部 4 个 skill:
 
 ```bash
-npx github:HappyEpicDragon/research_memory
+npx skills add HappyEpicDragon/research_memory --skill '*' -y
 ```
 
-会把 skill 装到当前目录的 `.claude/skills/research-memory/`,把三个斜杠命令装到 `.claude/commands/`。可以重复运行来更新到最新版本。不注册任何 hook,也不碰 `.claude/settings.json`。
-
-也可以指定目标目录:
+也可以只挑其中几个(不建议——这四个是配套设计的,`research-init`/`research-resume`/`research-checkpoint` 的指令里都直接引用了 `research-memory` 的规则文件):
 
 ```bash
-npx github:HappyEpicDragon/research_memory /path/to/project
+npx skills add HappyEpicDragon/research_memory --skill research-memory --skill research-init -y
 ```
 
-### 方式二:在 devcontainer 里自动安装
+### 在 devcontainer 里自动安装
 
 在 `.devcontainer/devcontainer.json` 里加一行,容器每次创建时自动装好,不需要任何 bind mount:
 
 ```jsonc
 {
   // ...
-  "postCreateCommand": "npx github:HappyEpicDragon/research_memory"
+  "postCreateCommand": "npx skills add HappyEpicDragon/research_memory --skill '*' -y"
 }
 ```
 
-这是这个 skill 相比 Oh My Paper 的一个直接改进:Oh My Paper 因为是"本地目录型" marketplace、又依赖桌面 App 写在宿主机的配置文件,在 devcontainer 里必须手动挂载源码目录和 `~/.viewerleaf` 才能用。`research-memory` 通过 npx 直接从 GitHub 拉取安装,不需要挂载任何东西。
+这是这个 skill 相比 Oh My Paper 的一个直接改进:Oh My Paper 因为是"本地目录型" marketplace、又依赖桌面 App 写在宿主机的配置文件,在 devcontainer 里必须手动挂载源码目录和 `~/.viewerleaf` 才能用。这里换成生态标准的 `skills` CLI,不需要挂载任何东西。
 
-### 方式三:手动复制
+### 手动复制
 
-克隆本仓库,把 `SKILL.md`、`templates/` 复制到目标项目的 `.claude/skills/research-memory/`,把 `commands/` 复制到 `.claude/commands/`。
+克隆本仓库,把 `skills/` 下的四个子目录整个复制到目标项目的 `.claude/skills/` 里(保持目录名不变)。
 
-### 方式四:`npx skills add`
+### 装完之后要不要重启 Claude Code
 
-这个 skill 的 `SKILL.md` 就放在仓库根目录,符合 [skills CLI](https://www.skills.sh)(`vercel-labs/skills`)的发现规则,所以也可以用生态里更通用的方式只装 skill 本体(不含 `/research-init` 等三个斜杠命令,这个 CLI 不处理 `.claude/commands/`):
+如果是在一个新项目、或者容器刚创建时装(`.claude/skills/` 之前不存在),按 [官方文档](https://code.claude.com/docs/en/skills) 的说法需要重启一次 Claude Code 才能被发现:
 
-```bash
-npx skills add HappyEpicDragon/research_memory
-```
+> If you create a top-level skills directory that didn't exist when the session started, restart Claude Code so it can watch the new directory.
+
+如果 `.claude/skills/` 已经存在、只是新增/更新里面的某个 skill,当前会话会自动发现,不用重启。
 
 ## 安装之后会发生什么
 
-Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"恢复上下文"“这个项目到哪了”“开始新实验”一类的话时自动触发这个 skill。第一次真正使用时,会在项目里创建:
+`research-memory` 这个 skill 会在你说"恢复上下文"“这个项目到哪了”“开始新实验”一类的话时自动触发。另外三个(`research-init`/`research-resume`/`research-checkpoint`)设置了 `disable-model-invocation: true`,只能手动用斜杠命令触发,Claude 不会自己决定运行它们。第一次真正使用时,会在项目里创建:
 
 ```
 .research/
@@ -70,15 +68,15 @@ Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"�
 
 ## 三个斜杠命令
 
-自然语言触发 skill 不够可靠时,可以用这三个显式命令(装好后在 `.claude/commands/` 下):
-
 - **`/research-init`** —— 项目第一次用这个 skill、还没有 `.research/` 目录时用。全量扫描仓库(git log、README、目录结构、已有实验代码/结果)+ 问几个代码看不出来的问题(项目在研究什么、现在到哪一步、有没有已知的坑),建立初始记忆,而不是给一份空模板了事。
 - **`/research-resume`** —— 新会话开始时用,对应 Oh My Paper 的 `/omp:plan`。读 `state.md` + `compute_nodes.md` + 日志尾部,用人话讲一遍现在到哪了。
 - **`/research-checkpoint`** —— 这次会话有实质性进展、准备结束或切换任务时用。把进展整篇重写进 `state.md`(不是追加),必要时往决策/实验日志加一行。
 
-## 核心规则(完整版见 `SKILL.md`)
+这三个和 `research-memory` 本体一样都是普通 skill,只是加了 `disable-model-invocation: true` 变成"只能手动触发"——`.claude/commands/*.md` 和 `.claude/skills/<name>/SKILL.md` 现在是同一套机制(官方文档原话:"Custom commands have been merged into skills"),这里选了后者,是因为它能被 `skills` CLI 一起发现安装。
 
-1. **`state.md` 只能整篇重写,不能追加。** 有硬性 200 行上限,旧的、被取代的内容直接删除,不允许用"本节优先"这种堆叠式写法。这条纯靠 `/research-checkpoint`/`/research-resume` 指令里"写完/读完自己 `wc -l` 检查一下"来落实,没有 hook 兜底——早期版本加过一个 `PostToolUse` hook 做这个检查,后来去掉了:换来的是可以用生态标准的 `npx skills add` 安装(见下),代价是压缩纪律完全靠指令执行,不靠代码强制。
+## 核心规则(完整版见 `skills/research-memory/SKILL.md`)
+
+1. **`state.md` 只能整篇重写,不能追加。** 有硬性 200 行上限,旧的、被取代的内容直接删除,不允许用"本节优先"这种堆叠式写法。这条纯靠 `/research-checkpoint`/`/research-resume` 指令里"写完/读完自己 `wc -l` 检查一下"来落实——早期版本加过一个 hook 做这件事,后来去掉了,换来的是能用生态标准的 `skills` CLI 安装,代价是压缩纪律完全靠指令执行,不靠代码强制。
 2. **`state.md` 面向完全不了解背景的人写。** 文件顶部固定一个术语表,任何编号/代号第一次出现必须先解释。检验标准:一个不知道项目背景的人,只读这一个文件就该看懂现状。
 3. **执行留在主线 agent,只有决策关卡才升级到更强的模型。** 写代码、跑实验、调试都由当前 agent 直接做;只有"方案是否合理""结果是否达标""要不要转向"这几个判断点才调用 `advisor()` 或转给 Codex 求第二意见。
 4. **新实验用 Hydra 骨架**,超参数进 `conf/` 配置组,不进文件名;每次运行自动落到 `outputs/<date>/<time>/`;`experiments.log.md` 只记一行索引,不复制内容。
@@ -95,17 +93,18 @@ Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"�
 
 ```
 research-memory/
-  SKILL.md                    # skill 定义,Claude Code 实际读的文件
-  templates/
-    state.md.tmpl              # state.md 的初始骨架
-    compute_nodes.md.tmpl      # compute_nodes.md 的初始骨架
-  commands/
-    research-init.md            # /research-init
-    research-resume.md          # /research-resume
-    research-checkpoint.md      # /research-checkpoint
-  bin/
-    install.mjs                 # npx 安装脚本
-  package.json
+  skills/
+    research-memory/
+      SKILL.md                  # 主 skill,规则本体,自然语言可自动触发
+      templates/
+        state.md.tmpl            # state.md 的初始骨架
+        compute_nodes.md.tmpl    # compute_nodes.md 的初始骨架
+    research-init/
+      SKILL.md                  # /research-init，disable-model-invocation: true
+    research-resume/
+      SKILL.md                  # /research-resume，disable-model-invocation: true
+    research-checkpoint/
+      SKILL.md                  # /research-checkpoint，disable-model-invocation: true
 ```
 
 ## License

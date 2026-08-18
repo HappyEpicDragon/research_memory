@@ -109,10 +109,10 @@ function main() {
   console.log(`✅ 完成。
   - skill 文件: ${skillDest}
   - hook 已合并进: ${path.join(targetDir, ".claude", "settings.json")}
-  - 斜杠命令: ${path.join(commandsDest, "resume.md")} / ${path.join(commandsDest, "checkpoint.md")}
+  - 斜杠命令: ${path.join(commandsDest, "research-resume.md")} / ${path.join(commandsDest, "research-checkpoint.md")}
 
-新会话恢复上下文：/resume
-把这次会话进展写回记忆：/checkpoint
+新会话恢复上下文：/research-resume
+把这次会话进展写回记忆：/research-checkpoint
 （不用命令也行，Claude Code 会在你说"恢复上下文"“记录进展”这类话时自动触发 research-memory 这个 skill）
 
 首次真正使用时会在 .research/ 下按模板创建 state.md 和 compute_nodes.md。`);

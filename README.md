@@ -64,8 +64,8 @@ Claude Code 读到 `.claude/skills/research-memory/SKILL.md` 后,会在你说"�
 
 自然语言触发 skill 不够可靠时,可以用这两个显式命令(装好后在 `.claude/commands/` 下):
 
-- **`/resume`** —— 新会话开始时用,对应 Oh My Paper 的 `/omp:plan`。读 `state.md` + `compute_nodes.md` + 日志尾部,用人话讲一遍现在到哪了。
-- **`/checkpoint`** —— 这次会话有实质性进展、准备结束或切换任务时用。把进展整篇重写进 `state.md`(不是追加),必要时往决策/实验日志加一行。
+- **`/research-resume`** —— 新会话开始时用,对应 Oh My Paper 的 `/omp:plan`。读 `state.md` + `compute_nodes.md` + 日志尾部,用人话讲一遍现在到哪了。
+- **`/research-checkpoint`** —— 这次会话有实质性进展、准备结束或切换任务时用。把进展整篇重写进 `state.md`(不是追加),必要时往决策/实验日志加一行。
 
 ## 核心规则(完整版见 `SKILL.md`)
 
@@ -93,8 +93,8 @@ research-memory/
   hooks/
     check-state-size.mjs       # PostToolUse hook:state.md 超 200 行时追加警告
   commands/
-    resume.md                   # /resume
-    checkpoint.md                # /checkpoint
+    research-resume.md          # /research-resume
+    research-checkpoint.md      # /research-checkpoint
   bin/
     install.mjs                 # npx 安装脚本
   package.json
